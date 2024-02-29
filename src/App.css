@@ -20,12 +20,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-.submit-button {
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
 .modal {
   position: fixed;
   top: 0;
