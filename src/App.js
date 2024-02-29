@@ -1,101 +1,98 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./App.css";
-import Button from "@mui/material/Button";
-import Modal from "@mui/material/Modal";
 
-const validatePhone = (number) => {
-  const phoneRegex = /^\+?(\d{10})$/;
-  if (!phoneRegex.test(number)) {
-    return false;
-  }
-  return true;
-};
-const validateDateOfBirth = (birthDate) => {
-  let birthDateObject = null;
-  try {
-    birthDateObject = new Date(birthDate);
-    if (isNaN(birthDateObject.getTime())) {
-      return false;
-    }
-  } catch (error) {
-    return false;
-  }
+const App = () => {
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const usernameRef = useRef(null);
+  const emailRef = useRef(null);
+  const phoneRef = useRef(null);
+  const dobRef = useRef(null);
+  const formRef = useRef(null);
 
-  const today = new Date();
-  return birthDateObject < today;
-};
-function App() {
-  const [phone, setPhone] = useState(null);
-  const [birthDate, setBirthDate] = useState("");
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validatePhone(phone)) {
-      alert("Invalid phone number. Please enter a 10-digit phone number.");
-    }
-    if (!validateDateOfBirth(birthDate)) {
-      alert("invlaid");
+  const openForm = () => {
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+  };
+
+  const handleClickOutside = (e) => {
+    if (formRef.current && !formRef.current.contains(e.target)) {
+      closeForm();
     }
   };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const username = usernameRef.current.value;
+    const email = emailRef.current.value;
+    const phone = phoneRef.current.value;
+    const dob = dobRef.current.value;
+
+    if (!email.includes("@")) {
+      alert("Invalid email. Please check your email address.");
+      return;
+    }
+
+    if (phone.length !== 10 || isNaN(phone)) {
+      alert("Invalid phone number. Please enter a 10-digit phone number.");
+      return;
+    }
+
+    const currentDate = new Date();
+    const inputDate = new Date(dob);
+
+    if (inputDate > currentDate) {
+      alert("Invalid date of birth");
+      return;
+    }
+
+    closeForm();
+  };
+
   return (
-    <div className="App">
+    <div
+      className={`app ${isFormOpen ? "blur" : ""}`}
+      onClick={handleClickOutside}
+    >
       <h1>User Details Modal</h1>
-      <Button variant="contained" onClick={handleOpen}>
+      <button className="submit-button" onClick={openForm}>
         Open Form
-      </Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <div className="wrapper">
-          <form className="form" onSubmit={handleSubmit}>
-            <h2>Fill Detials</h2>
-            <label htmlFor="username">Username:</label>
-            <br />
-            <input required type="text" id="username" />
-            <br />
-            <label required htmlFor="email">
-              Email Address:
-            </label>
-            <br />
-            <input required type="email" id="email" />
-            <br />
-            <label required htmlFor="phone">
-              Phone Number
-            </label>
-            <br />
-            <input
-              required
-              type="tel"
-              id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-            <br />
-            <label htmlFor="birthdate">Date of Birth:</label>
-            <br />
-            <input
-              required
-              type="date"
-              id="birthdate"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-            />
-            <br />
-            <div>
-              <Button variant="contained" type="submit">
-                Submit
-              </Button>
-            </div>
-          </form>
+      </button>
+
+      {isFormOpen && (
+        <div className="modal" onClick={handleClickOutside}>
+          <div className="modal-content" ref={formRef}>
+            <form>
+              <h3>Fill Details</h3>
+              <label htmlFor="username">Username:</label>
+              <input type="text" id="username" ref={usernameRef} required />
+
+              <label htmlFor="email">Email:</label>
+              <input type="email" id="email" ref={emailRef} required />
+
+              <label htmlFor="phone">Phone Number:</label>
+              <input type="tel" id="phone" ref={phoneRef} required />
+
+              <label htmlFor="dob">Date of Birth:</label>
+              <input type="date" id="dob" ref={dobRef} required />
+              <div>
+                <button
+                  type="button"
+                  className="submit-button"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </Modal>
+      )}
     </div>
   );
-}
+};
 
 export default App;
